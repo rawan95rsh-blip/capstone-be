@@ -13,22 +13,25 @@ export const createSession = async (req: Request, res: Response) => {
 
 export const getSessions = async (req: Request, res: Response) => {
   try {
-    const sessions = await Session.find().sort({ date: 1, time: 1 });
-    const data = sessions.map((s) => ({
-      id: s._id.toString(),
-      name: s.name,
-      providerId: s.providerId,
-      providerName: s.providerName,
-      date: s.date,
-      time: s.time,
-      durationMinutes: s.durationMinutes,
-      format: s.format,
-      description: s.description,
-      availability: s.availability,
-      language: s.language,
-      enrolledCount: s.enrolledCount,
-      maxParticipants: s.maxParticipants,
-    }));
+    const sessions = await Session.find().populate("providerId").sort({ date: 1, time: 1 });
+    const data = sessions.map((s) => {
+      const provider = s.providerId as { _id?: unknown; name?: string } | null;
+      return {
+        id: s._id.toString(),
+        name: s.name,
+        providerId: provider?._id != null ? String(provider._id) : s.providerId?.toString(),
+        providerName: provider?.name ?? "",
+        date: s.date,
+        time: s.time,
+        durationMinutes: s.durationMinutes,
+        format: s.format,
+        description: s.description,
+        availability: s.availability,
+        language: s.language,
+        enrolledCount: s.enrolledCount,
+        maxParticipants: s.maxParticipants,
+      };
+    });
     return res.status(200).json({ success: true, data });
   } catch (error) {
     console.error(error);
@@ -43,15 +46,16 @@ export const getSessionById = async (req: Request, res: Response) => {
     if (!sessionId) {
       return res.status(400).json({ success: false, error: "Invalid session ID" });
     }
-    const session = await Session.findById(sessionId);
+    const session = await Session.findById(sessionId).populate("providerId");
     if (!session) {
       return res.status(404).json({ success: false, error: "Session not found" });
     }
+    const provider = session.providerId as { _id?: unknown; name?: string } | null;
     const data = {
       id: session._id.toString(),
       name: session.name,
-      providerId: session.providerId,
-      providerName: session.providerName,
+      providerId: provider?._id != null ? String(provider._id) : session.providerId?.toString(),
+      providerName: provider?.name ?? "",
       date: session.date,
       time: session.time,
       durationMinutes: session.durationMinutes,
