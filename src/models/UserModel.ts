@@ -9,6 +9,7 @@ const userSchema = new Schema({
         type: String,
         required: true,
     },
+    sessions: [{ type: Schema.Types.ObjectId, ref: "Session" }],
 });
 
 const User = model("User", userSchema);
