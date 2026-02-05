@@ -51,10 +51,14 @@ export const getMe = async (req: Request, res: Response) => {
        return res.status(404).json({ success: false, error: "User not found" });
      }
      return res.status(200).json({
-       success: true,
-       data: { _id: user._id, username: user.username },
-     });
-   } catch (error) {
+      success: true,
+      data: {
+        _id: user._id,
+        username: user.username,
+        avatarId: (user as any).avatarId ?? "",
+      },
+    });
+     } catch (error) {
      console.error(error);
      return res.status(500).json({ success: false, error: "Internal server error" });
    }
