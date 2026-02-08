@@ -15,6 +15,7 @@ const sessionSchema = new Schema(
     enrolledCount: { type: Number, default: 0 },
     maxParticipants: { type: Number, required: true },
     participants: [{ type: Schema.Types.ObjectId, ref: "User" }],
+    meetingUrl: { type: String },
   },
   { timestamps: true }
 );
